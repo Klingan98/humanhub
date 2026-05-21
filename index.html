@@ -3,54 +3,70 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Human Needs HUD</title>
-  <meta name="description" content="En enkel behovs-HUD inspirerad av spel, anpassad för riktiga människor. All data sparas lokalt i webbläsaren." />
+  <title>HumanHub</title>
+  <meta name="description" content="HumanHub är en personlig behovs-HUD inspirerad av spel, anpassad för verkliga människor. All data sparas lokalt i webbläsaren." />
+  <meta name="theme-color" content="#2f7df6" />
   <style>
     :root{
       --bg:#eef3fb;
+      --bg2:#f8fbff;
       --panel:#ffffff;
-      --panel-2:#f7f9fd;
+      --panel2:#f7f9fd;
       --text:#162033;
       --muted:#657089;
       --line:#d9e1ee;
-      --green:#29c45a;
-      --yellow:#f5ba2f;
+      --green:#24c45a;
+      --yellow:#f2b72f;
       --red:#ef4b4b;
       --blue:#2f7df6;
       --purple:#8b5cf6;
+      --orange:#f59e0b;
       --shadow:0 18px 45px rgba(39,55,90,.14);
+      --softShadow:0 8px 22px rgba(39,55,90,.09);
       --radius:22px;
+      --font:ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    [data-theme="dark"]{
+      --bg:#0c1322;
+      --bg2:#101827;
+      --panel:#172033;
+      --panel2:#111a2c;
+      --text:#eef4ff;
+      --muted:#a5b2ca;
+      --line:#2c3850;
+      --shadow:0 20px 48px rgba(0,0,0,.34);
+      --softShadow:0 8px 22px rgba(0,0,0,.26);
     }
 
     *{box-sizing:border-box}
-
+    html{scroll-behavior:smooth}
     body{
       margin:0;
       min-height:100vh;
-      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family:var(--font);
       color:var(--text);
       background:
         radial-gradient(circle at top left, rgba(47,125,246,.18), transparent 32rem),
         radial-gradient(circle at top right, rgba(41,196,90,.15), transparent 28rem),
-        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+        linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
     }
 
-    button, input, select, textarea{
-      font:inherit;
-    }
+    button, input, select, textarea{font:inherit}
+    button{touch-action:manipulation}
 
     .app{
-      width:min(1180px, calc(100% - 28px));
+      width:min(1220px, calc(100% - 28px));
       margin:0 auto;
-      padding:24px 0 42px;
+      padding:22px 0 42px;
     }
 
     header{
       display:flex;
-      align-items:center;
       justify-content:space-between;
+      align-items:flex-start;
       gap:18px;
-      margin-bottom:22px;
+      margin-bottom:18px;
     }
 
     .brand{
@@ -60,29 +76,30 @@
     }
 
     .logo{
-      width:54px;
-      height:54px;
-      border-radius:18px;
-      background:
-        linear-gradient(145deg, #25d75a, #1f7dff);
+      width:56px;
+      height:56px;
+      border-radius:19px;
+      background:linear-gradient(145deg, #25d75a, #1f7dff);
       display:grid;
       place-items:center;
       box-shadow:0 12px 28px rgba(47,125,246,.24);
       color:white;
-      font-size:28px;
+      font-size:29px;
+      font-weight:900;
     }
 
     h1{
       margin:0;
-      font-size:clamp(1.6rem, 4vw, 2.7rem);
-      letter-spacing:-.04em;
+      font-size:clamp(1.65rem, 4vw, 2.75rem);
+      letter-spacing:-.045em;
       line-height:1;
     }
 
     .subtitle{
       color:var(--muted);
-      margin:.35rem 0 0;
+      margin:.38rem 0 0;
       font-size:.98rem;
+      line-height:1.35;
     }
 
     .header-actions{
@@ -98,97 +115,152 @@
       padding:11px 15px;
       background:var(--panel);
       color:var(--text);
-      box-shadow:0 8px 20px rgba(39,55,90,.09);
+      box-shadow:var(--softShadow);
       cursor:pointer;
-      transition:.18s transform, .18s box-shadow, .18s background;
-      font-weight:700;
+      transition:.18s transform, .18s box-shadow, .18s background, .18s opacity;
+      font-weight:850;
+      min-height:42px;
     }
 
-    .btn:hover{
-      transform:translateY(-1px);
-      box-shadow:0 12px 28px rgba(39,55,90,.13);
+    .btn:hover{transform:translateY(-1px); box-shadow:var(--shadow)}
+    .btn:active{transform:translateY(0); opacity:.85}
+
+    .btn.primary{color:white; background:linear-gradient(135deg, var(--blue), #1fbf75)}
+    .btn.secondary{background:var(--panel2); border:1px solid var(--line)}
+    .btn.danger{color:white; background:linear-gradient(135deg, #ef4b4b, #f59e0b)}
+    .btn.ghost{box-shadow:none; border:1px solid var(--line); background:transparent}
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding:7px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.55);
+      border-radius:999px;
+      margin-bottom:18px;
+      box-shadow:var(--softShadow);
+      backdrop-filter: blur(10px);
     }
 
-    .btn.primary{
-      color:white;
-      background:linear-gradient(135deg, var(--blue), #1fbf75);
+    [data-theme="dark"] .tabs{background:rgba(23,32,51,.72)}
+
+    .tab{
+      border:0;
+      border-radius:999px;
+      background:transparent;
+      color:var(--muted);
+      padding:10px 14px;
+      white-space:nowrap;
+      cursor:pointer;
+      font-weight:900;
     }
 
-    .btn.danger{
-      color:white;
-      background:linear-gradient(135deg, #ef4b4b, #f59e0b);
+    .tab.active{
+      background:var(--panel);
+      color:var(--text);
+      box-shadow:var(--softShadow);
     }
+
+    .screen{display:none}
+    .screen.active{display:block}
 
     .dashboard{
       display:grid;
-      grid-template-columns: 1.7fr .9fr;
+      grid-template-columns: 1.65fr .95fr;
       gap:18px;
       align-items:start;
     }
 
     .panel{
       background:rgba(255,255,255,.86);
-      border:1px solid rgba(217,225,238,.86);
+      border:1px solid rgba(217,225,238,.88);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       backdrop-filter: blur(10px);
     }
 
-    .needs-panel{
-      padding:18px;
+    [data-theme="dark"] .panel{
+      background:rgba(23,32,51,.86);
+      border-color:rgba(44,56,80,.9);
     }
+
+    .card{padding:18px}
+    .card h2, .card h3{margin:0 0 12px; letter-spacing:-.03em}
+    .card h2{font-size:1.22rem}
+    .card h3{font-size:1.05rem}
 
     .status-card{
       display:grid;
-      grid-template-columns: 96px 1fr;
+      grid-template-columns: 104px 1fr;
       gap:16px;
       align-items:center;
       padding:18px;
       margin-bottom:16px;
-      background:linear-gradient(135deg, #ffffff, #f6f9ff);
+      background:linear-gradient(135deg, var(--panel), var(--panel2));
       border:1px solid var(--line);
       border-radius:20px;
     }
 
     .score-ring{
-      width:96px;
-      height:96px;
+      width:104px;
+      height:104px;
       border-radius:50%;
       display:grid;
       place-items:center;
-      background:
-        conic-gradient(var(--green) calc(var(--score) * 1%), #dfe7f3 0);
+      background:conic-gradient(var(--ringColor, var(--green)) calc(var(--score) * 1%), #dfe7f3 0);
       position:relative;
     }
+
+    [data-theme="dark"] .score-ring{background:conic-gradient(var(--ringColor, var(--green)) calc(var(--score) * 1%), #29364d 0)}
 
     .score-ring::after{
       content:"";
       position:absolute;
-      width:72px;
-      height:72px;
+      width:78px;
+      height:78px;
       border-radius:50%;
-      background:white;
+      background:var(--panel);
       box-shadow:inset 0 0 0 1px var(--line);
     }
 
     .score-value{
       position:relative;
       z-index:1;
-      font-size:1.35rem;
-      font-weight:900;
+      font-size:1.45rem;
+      font-weight:950;
     }
 
     .status-title{
-      margin:0 0 4px;
-      font-size:1.35rem;
-      letter-spacing:-.02em;
+      margin:0 0 5px;
+      font-size:1.38rem;
+      letter-spacing:-.025em;
     }
 
-    .status-text{
-      margin:0;
-      color:var(--muted);
-      line-height:1.45;
+    .status-text{margin:0; color:var(--muted); line-height:1.45}
+    .status-meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
     }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:var(--panel);
+      color:#2b4e82;
+      font-weight:850;
+      font-size:.86rem;
+    }
+
+    [data-theme="dark"] .pill{color:#cfe1ff}
+
+    .needs-panel{padding:18px}
 
     .needs-grid{
       display:grid;
@@ -199,12 +271,14 @@
       background:#eaf0f8;
     }
 
+    [data-theme="dark"] .needs-grid{background:#263249}
+
     .need{
-      background:linear-gradient(180deg, #fbfdff, #f0f4fb);
+      background:linear-gradient(180deg, var(--panel), var(--panel2));
       padding:15px;
       border-bottom:1px solid var(--line);
       border-right:1px solid var(--line);
-      min-height:132px;
+      min-height:148px;
       position:relative;
     }
 
@@ -223,15 +297,17 @@
       display:flex;
       align-items:center;
       gap:10px;
-      font-size:1.18rem;
-      font-weight:900;
+      font-size:1.15rem;
+      font-weight:950;
       color:#2459a6;
       letter-spacing:-.02em;
     }
 
+    [data-theme="dark"] .need-name{color:#8db8ff}
+
     .need-icon{
-      width:38px;
-      height:38px;
+      width:39px;
+      height:39px;
       border-radius:50%;
       display:grid;
       place-items:center;
@@ -241,14 +317,12 @@
       font-size:20px;
     }
 
-    .need-value{
-      color:#27548e;
-      font-weight:900;
-    }
+    .need-value{color:#27548e; font-weight:950}
+    [data-theme="dark"] .need-value{color:#cfe1ff}
 
     .bar{
       width:100%;
-      height:28px;
+      height:29px;
       border-radius:999px;
       background:#dce5f1;
       border:1px solid #cbd6e6;
@@ -256,6 +330,8 @@
       overflow:hidden;
       position:relative;
     }
+
+    [data-theme="dark"] .bar{background:#263249; border-color:#3a4963}
 
     .bar-fill{
       height:100%;
@@ -267,13 +343,9 @@
       transition:width .45s ease, background .25s ease;
     }
 
-    .bar-fill.yellow{
-      background:linear-gradient(180deg, #ffd95b, #e69d1b);
-    }
-
-    .bar-fill.red{
-      background:linear-gradient(180deg, #ff7777, #d93838);
-    }
+    .bar-fill.yellow{background:linear-gradient(180deg, #ffd95b, #e69d1b)}
+    .bar-fill.red{background:linear-gradient(180deg, #ff7777, #d93838)}
+    .bar-fill.blue{background:linear-gradient(180deg, #6fb0ff, #2f7df6)}
 
     .need-foot{
       display:flex;
@@ -283,37 +355,32 @@
       margin-top:10px;
     }
 
-    .hint{
-      color:var(--muted);
-      font-size:.84rem;
-      line-height:1.3;
-    }
+    .hint{color:var(--muted); font-size:.84rem; line-height:1.3}
 
     .small-btn{
       border:1px solid var(--line);
-      background:white;
+      background:var(--panel);
       color:#2b4e82;
       border-radius:999px;
       padding:8px 10px;
-      font-weight:900;
+      font-weight:950;
       cursor:pointer;
       white-space:nowrap;
+      min-width:38px;
     }
 
-    .side{
-      display:grid;
-      gap:18px;
+    [data-theme="dark"] .small-btn{color:#cfe1ff}
+
+    .micro-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:10px;
     }
 
-    .card{
-      padding:18px;
-    }
+    .micro-row input[type="range"]{flex:1}
 
-    .card h2{
-      margin:0 0 12px;
-      letter-spacing:-.03em;
-      font-size:1.2rem;
-    }
+    .side{display:grid; gap:18px}
 
     .quest{
       display:flex;
@@ -322,42 +389,31 @@
       padding:12px;
       border:1px solid var(--line);
       border-radius:16px;
-      background:var(--panel-2);
+      background:var(--panel2);
       margin-bottom:10px;
+      cursor:pointer;
     }
 
     .quest:last-child{margin-bottom:0}
 
     .quest-dot{
-      width:26px;
-      height:26px;
-      flex:0 0 26px;
+      width:28px;
+      height:28px;
+      flex:0 0 28px;
       border-radius:50%;
       display:grid;
       place-items:center;
       background:#e7efff;
       color:var(--blue);
-      font-weight:900;
+      font-weight:950;
     }
 
-    .quest-title{
-      margin:0;
-      font-weight:900;
-    }
+    [data-theme="dark"] .quest-dot{background:#223456}
 
-    .quest-text{
-      margin:2px 0 0;
-      color:var(--muted);
-      font-size:.9rem;
-      line-height:1.35;
-    }
+    .quest-title{margin:0; font-weight:950}
+    .quest-text{margin:2px 0 0; color:var(--muted); font-size:.9rem; line-height:1.35}
 
-    .moodlets{
-      display:flex;
-      flex-wrap:wrap;
-      gap:8px;
-    }
-
+    .moodlets{display:flex; flex-wrap:wrap; gap:8px}
     .moodlet{
       display:inline-flex;
       align-items:center;
@@ -365,82 +421,133 @@
       padding:8px 10px;
       border-radius:999px;
       border:1px solid var(--line);
-      background:white;
-      font-weight:800;
+      background:var(--panel);
+      font-weight:850;
       color:#2b4e82;
       font-size:.9rem;
     }
 
-    .checkin-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
+    [data-theme="dark"] .moodlet{color:#cfe1ff}
+
+    .checkin-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .full{grid-column:1 / -1}
 
     label{
       font-size:.85rem;
       color:var(--muted);
-      font-weight:800;
+      font-weight:850;
       display:block;
       margin-bottom:6px;
     }
 
-    input[type="range"]{
-      width:100%;
-      accent-color:var(--blue);
-    }
+    input[type="range"]{width:100%; accent-color:var(--blue)}
 
-    textarea{
+    input[type="number"], input[type="text"], select, textarea{
       width:100%;
-      min-height:86px;
-      resize:vertical;
       border:1px solid var(--line);
-      border-radius:16px;
-      padding:12px;
-      background:#fbfdff;
+      border-radius:14px;
+      padding:10px 11px;
+      background:var(--panel);
       color:var(--text);
       outline:none;
     }
 
-    .full{grid-column:1 / -1}
+    textarea{min-height:86px; resize:vertical}
 
     .actions-list{
       display:grid;
       grid-template-columns:1fr 1fr;
       gap:10px;
+      max-height:430px;
+      overflow:auto;
+      padding-right:2px;
     }
 
     .action-tile{
       border:1px solid var(--line);
       border-radius:16px;
       padding:12px;
-      background:var(--panel-2);
+      background:var(--panel2);
       cursor:pointer;
       text-align:left;
       transition:.18s transform, .18s background;
+      color:var(--text);
     }
 
-    .action-tile:hover{
-      transform:translateY(-1px);
-      background:white;
+    .action-tile:hover{transform:translateY(-1px); background:var(--panel)}
+    .action-tile strong{display:block; margin-bottom:3px}
+    .action-tile span{color:var(--muted); font-size:.84rem}
+
+    .overview-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:18px;
     }
 
-    .action-tile strong{
+    .wide{grid-column:span 2}
+
+    .chart-wrap{
+      width:100%;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:var(--panel2);
+      padding:12px;
+    }
+
+    canvas{
+      width:100%;
+      height:220px;
       display:block;
-      margin-bottom:3px;
     }
 
-    .action-tile span{
-      color:var(--muted);
-      font-size:.84rem;
+    .history-list{
+      display:grid;
+      gap:10px;
+      max-height:420px;
+      overflow:auto;
     }
 
-    .privacy{
-      color:var(--muted);
-      font-size:.86rem;
-      line-height:1.45;
-      margin:0;
+    .history-item{
+      border:1px solid var(--line);
+      background:var(--panel2);
+      border-radius:15px;
+      padding:11px;
     }
+
+    .history-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      color:var(--muted);
+      font-size:.85rem;
+      font-weight:850;
+      margin-bottom:5px;
+    }
+
+    .history-note{margin:0; line-height:1.4}
+    .history-score{font-weight:950; color:var(--text)}
+
+    .settings-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:18px;
+    }
+
+    .setting-row{
+      display:grid;
+      grid-template-columns:1fr 110px;
+      gap:10px;
+      align-items:center;
+      padding:10px 0;
+      border-bottom:1px solid var(--line);
+    }
+
+    .setting-row:last-child{border-bottom:0}
+    .setting-row p{margin:3px 0 0; color:var(--muted); font-size:.86rem; line-height:1.35}
+
+    .privacy{color:var(--muted); font-size:.9rem; line-height:1.5; margin:0}
+    .small-text{color:var(--muted); font-size:.86rem; line-height:1.45}
 
     .toast{
       position:fixed;
@@ -455,50 +562,27 @@
       opacity:0;
       pointer-events:none;
       transition:.2s;
-      font-weight:800;
-      z-index:20;
+      font-weight:850;
+      z-index:30;
     }
 
-    .toast.show{
-      opacity:1;
-      transform:translateX(-50%) translateY(0);
-    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
 
     dialog{
-      width:min(560px, calc(100% - 30px));
+      width:min(600px, calc(100% - 30px));
       border:0;
       border-radius:24px;
       padding:0;
       box-shadow:0 28px 70px rgba(0,0,0,.26);
-      background:white;
+      background:var(--panel);
       color:var(--text);
     }
 
-    dialog::backdrop{
-      background:rgba(15,23,42,.45);
-      backdrop-filter: blur(4px);
-    }
-
-    .modal{
-      padding:22px;
-    }
-
-    .modal h2{
-      margin:0 0 8px;
-    }
-
-    .modal p{
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .modal-actions{
-      display:flex;
-      justify-content:flex-end;
-      flex-wrap:wrap;
-      gap:10px;
-      margin-top:18px;
-    }
+    dialog::backdrop{background:rgba(15,23,42,.48); backdrop-filter: blur(4px)}
+    .modal{padding:22px}
+    .modal h2{margin:0 0 8px}
+    .modal p{color:var(--muted); line-height:1.45}
+    .modal-actions{display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-top:18px}
 
     .footer-note{
       margin:16px 4px 0;
@@ -507,21 +591,50 @@
       text-align:center;
     }
 
-    @media (max-width: 900px){
+    .empty{
+      border:1px dashed var(--line);
+      color:var(--muted);
+      border-radius:16px;
+      padding:18px;
+      text-align:center;
+      background:var(--panel2);
+    }
+
+    .review-list{
+      display:grid;
+      gap:10px;
+    }
+
+    .review-item{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:13px;
+      background:var(--panel2);
+    }
+
+    .review-item strong{display:block; margin-bottom:3px}
+    .review-item p{margin:0; color:var(--muted); line-height:1.4}
+
+    @media (max-width: 980px){
       .dashboard{grid-template-columns:1fr}
-      header{align-items:flex-start; flex-direction:column}
+      .overview-grid, .settings-grid{grid-template-columns:1fr}
+      .wide{grid-column:auto}
+      header{flex-direction:column}
       .header-actions{justify-content:flex-start}
     }
 
-    @media (max-width: 620px){
+    @media (max-width: 640px){
       .needs-grid{grid-template-columns:1fr}
       .need{border-right:0 !important}
       .need:nth-last-child(2){border-bottom:1px solid var(--line)}
       .status-card{grid-template-columns:1fr; text-align:center}
       .score-ring{margin:auto}
       .actions-list, .checkin-grid{grid-template-columns:1fr}
+      .setting-row{grid-template-columns:1fr}
       .btn{width:100%}
       .header-actions{width:100%}
+      .tabs{border-radius:20px}
+      .tab{padding:10px 12px}
     }
   </style>
 </head>
@@ -529,87 +642,223 @@
   <div class="app">
     <header>
       <div class="brand">
-        <div class="logo" aria-hidden="true">◇</div>
+        <div class="logo" aria-hidden="true">H</div>
         <div>
-          <h1>Human Needs HUD</h1>
-          <p class="subtitle">Behovstaplar för riktiga människor. Snällare än en to-do-lista.</p>
+          <h1>HumanHub</h1>
+          <p class="subtitle">En spelig men snäll behovs-HUD för riktiga människor. Allt sparas lokalt på din enhet.</p>
         </div>
       </div>
       <div class="header-actions">
-        <button class="btn" id="exportBtn">Exportera data</button>
+        <button class="btn secondary" id="themeBtn">Mörkt läge</button>
+        <button class="btn" id="exportBtn">Exportera</button>
         <button class="btn" id="importBtn">Importera</button>
-        <button class="btn danger" id="resetBtn">Nollställ</button>
       </div>
     </header>
 
-    <main class="dashboard">
-      <section class="panel needs-panel" aria-label="Behovsstaplar">
-        <div class="status-card">
-          <div class="score-ring" id="scoreRing" style="--score:50">
-            <span class="score-value" id="scoreValue">50</span>
-          </div>
-          <div>
-            <h2 class="status-title" id="statusTitle">Laddar status...</h2>
-            <p class="status-text" id="statusText">Appen räknar ihop dina behov och föreslår ett litet nästa steg.</p>
-          </div>
-        </div>
+    <nav class="tabs" aria-label="Appflikar">
+      <button class="tab active" data-tab="hud">HUD</button>
+      <button class="tab" data-tab="insights">Insikter</button>
+      <button class="tab" data-tab="settings">Inställningar</button>
+      <button class="tab" data-tab="review">Genomgång</button>
+    </nav>
 
-        <div class="needs-grid" id="needsGrid"></div>
-      </section>
-
-      <aside class="side">
-        <section class="panel card">
-          <h2>Dagens små quests</h2>
-          <div id="quests"></div>
-        </section>
-
-        <section class="panel card">
-          <h2>Moodlets</h2>
-          <div class="moodlets" id="moodlets"></div>
-        </section>
-
-        <section class="panel card">
-          <h2>Snabb check-in</h2>
-          <div class="checkin-grid">
-            <div>
-              <label for="bodyRange">Kroppen just nu</label>
-              <input id="bodyRange" type="range" min="0" max="100" value="55" />
+    <section class="screen active" id="screen-hud">
+      <main class="dashboard">
+        <section class="panel needs-panel" aria-label="Behovsstaplar">
+          <div class="status-card">
+            <div class="score-ring" id="scoreRing" style="--score:50">
+              <span class="score-value" id="scoreValue">50</span>
             </div>
             <div>
-              <label for="mindRange">Huvudet just nu</label>
-              <input id="mindRange" type="range" min="0" max="100" value="55" />
+              <h2 class="status-title" id="statusTitle">Laddar status...</h2>
+              <p class="status-text" id="statusText">Appen räknar ihop dina behov och föreslår ett litet nästa steg.</p>
+              <div class="status-meta" id="statusMeta"></div>
             </div>
-            <div class="full">
-              <label for="note">Anteckning</label>
-              <textarea id="note" placeholder="Ex: sov dåligt, men tog en promenad."></textarea>
+          </div>
+
+          <div class="needs-grid" id="needsGrid"></div>
+        </section>
+
+        <aside class="side">
+          <section class="panel card">
+            <h2>Bästa nästa steg</h2>
+            <div id="quests"></div>
+          </section>
+
+          <section class="panel card">
+            <h2>Moodlets</h2>
+            <div class="moodlets" id="moodlets"></div>
+          </section>
+
+          <section class="panel card">
+            <h2>Snabb check-in</h2>
+            <div class="checkin-grid">
+              <div>
+                <label for="bodyRange">Kroppen just nu: <span id="bodyLabel">55</span>%</label>
+                <input id="bodyRange" type="range" min="0" max="100" value="55" />
+              </div>
+              <div>
+                <label for="mindRange">Huvudet just nu: <span id="mindLabel">55</span>%</label>
+                <input id="mindRange" type="range" min="0" max="100" value="55" />
+              </div>
+              <div class="full">
+                <label for="note">Anteckning</label>
+                <textarea id="note" placeholder="Ex: sov dåligt, men tog en promenad."></textarea>
+              </div>
+              <button class="btn primary full" id="saveCheckin">Spara check-in</button>
             </div>
-            <button class="btn primary full" id="saveCheckin">Spara check-in</button>
+          </section>
+
+          <section class="panel card">
+            <h2>Snabbåtgärder</h2>
+            <div class="actions-list" id="actionsList"></div>
+          </section>
+        </aside>
+      </main>
+    </section>
+
+    <section class="screen" id="screen-insights">
+      <div class="overview-grid">
+        <section class="panel card wide">
+          <h2>Trend senaste check-ins</h2>
+          <div class="chart-wrap">
+            <canvas id="trendCanvas" width="900" height="260" aria-label="Trenddiagram"></canvas>
+          </div>
+          <p class="small-text">Diagrammet visar kropp, huvud och total status från dina senaste sparade check-ins.</p>
+        </section>
+
+        <section class="panel card">
+          <h2>Dagens sammanfattning</h2>
+          <div id="dailySummary"></div>
+        </section>
+
+        <section class="panel card wide">
+          <h2>Historik</h2>
+          <div class="history-list" id="historyList"></div>
+        </section>
+
+        <section class="panel card">
+          <h2>Balansanalys</h2>
+          <div id="balanceAnalysis"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-settings">
+      <div class="settings-grid">
+        <section class="panel card">
+          <h2>Profil</h2>
+          <div class="setting-row">
+            <div>
+              <strong>Social batterityp</strong>
+              <p>Påverkar hur snabbt social-stapeln sjunker.</p>
+            </div>
+            <select id="socialMode">
+              <option value="introvert">Introvert</option>
+              <option value="balanced">Balanserad</option>
+              <option value="extrovert">Extrovert</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <strong>Sömnrutin</strong>
+              <p>Ger automatisk återhämtning under natten.</p>
+            </div>
+            <select id="sleepMode">
+              <option value="night">Natt: 23–07</option>
+              <option value="late">Sen: 01–09</option>
+              <option value="early">Tidig: 21–05</option>
+              <option value="off">Av</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <strong>Simuleringshastighet</strong>
+              <p>Hur snabbt staplarna går ned över tid.</p>
+            </div>
+            <select id="decayMode">
+              <option value="gentle">Snäll</option>
+              <option value="normal">Normal</option>
+              <option value="realistic">Realistisk</option>
+            </select>
+          </div>
+          <div class="setting-row">
+            <div>
+              <strong>Rörelsepåminnelse</strong>
+              <p>Visar extra quest när rörelse är låg.</p>
+            </div>
+            <select id="movementReminder">
+              <option value="on">På</option>
+              <option value="off">Av</option>
+            </select>
           </div>
         </section>
 
         <section class="panel card">
-          <h2>Snabbåtgärder</h2>
-          <div class="actions-list" id="actionsList"></div>
-        </section>
-
-        <section class="panel card">
-          <h2>Integritet</h2>
+          <h2>Data och säkerhet</h2>
           <p class="privacy">
-            Den här versionen sparar allt lokalt i din webbläsare med localStorage. Ingen server, inget konto, ingen molnlagring.
+            HumanHub använder bara <strong>localStorage</strong>. Det betyder att data ligger i webbläsaren på den här enheten. Ingen server, inget konto, ingen databas och ingen tredjepart.
           </p>
+          <div style="display:grid; gap:10px; margin-top:14px">
+            <button class="btn" id="exportBtn2">Exportera säkerhetskopia</button>
+            <button class="btn" id="importBtn2">Importera säkerhetskopia</button>
+            <button class="btn danger" id="resetBtn">Nollställ allt</button>
+          </div>
         </section>
-      </aside>
-    </main>
+
+        <section class="panel card wide">
+          <h2>Justera staplar manuellt</h2>
+          <p class="small-text">Bra när appen har fel. Kroppen vet mer än algoritmen.</p>
+          <div id="manualSliders"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="screen" id="screen-review">
+      <div class="overview-grid">
+        <section class="panel card wide">
+          <h2>Genomgång av appen</h2>
+          <div class="review-list">
+            <div class="review-item">
+              <strong>Det som var bra</strong>
+              <p>Den första versionen hade tydliga staplar, lokal sparning, moodlets och snabbåtgärder. Det var rätt kärna: snabb överblick och små steg.</p>
+            </div>
+            <div class="review-item">
+              <strong>Det som var otydligt</strong>
+              <p>Stress-stapeln var förvirrande eftersom hög stress normalt låter negativt. Jag bytte därför riktning och namn till Lugn, där hög stapel betyder bättre läge.</p>
+            </div>
+            <div class="review-item">
+              <strong>Det som saknades</strong>
+              <p>Appen behövde historik, inställningar, manuell korrigering, bättre nästa-steg-logik och en tydligare känsla av att den är ett stöd, inte en domare.</p>
+            </div>
+            <div class="review-item">
+              <strong>Det jag tog bort eller tonade ned</strong>
+              <p>Jag flyttade nollställning till Inställningar så den inte ligger för nära vardagsanvändningen. Jag minskade också känslan av prestation genom att använda formuleringar som “nästa steg” i stället för målpress.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel card">
+          <h2>Nya funktioner</h2>
+          <div class="review-list">
+            <div class="review-item"><strong>Insikter</strong><p>Trenddiagram, historik och balansanalys.</p></div>
+            <div class="review-item"><strong>Profil</strong><p>Social batterityp, sömnrutin och simuleringshastighet.</p></div>
+            <div class="review-item"><strong>Automatisk nattåterhämtning</strong><p>Sömn och energi kan fyllas på under din valda sovperiod.</p></div>
+            <div class="review-item"><strong>Manuell styrning</strong><p>Alla staplar kan korrigeras med sliders.</p></div>
+          </div>
+        </section>
+      </div>
+    </section>
 
     <p class="footer-note">
-      Inte medicinsk rådgivning. Se det som en vardagskompass, inte en domare.
+      Inte medicinsk rådgivning. Se det som en vardagskompass, inte en diagnos eller prestationsmätare.
     </p>
   </div>
 
   <dialog id="confirmDialog">
     <div class="modal">
-      <h2>Nollställa appen?</h2>
-      <p>Det tar bort dina sparade behovsnivåer, check-ins och inställningar från den här webbläsaren.</p>
+      <h2>Nollställa HumanHub?</h2>
+      <p>Det tar bort sparade behovsnivåer, check-ins och inställningar från den här webbläsaren.</p>
       <div class="modal-actions">
         <button class="btn" id="cancelReset">Avbryt</button>
         <button class="btn danger" id="confirmReset">Nollställ</button>
@@ -623,142 +872,136 @@
   <script>
     const NEEDS = [
       {
-        id:"energy",
-        name:"Energi",
-        icon:"⚡",
-        hint:"Sömn, vila och mental ork.",
-        decayPerHour:2.7,
+        id:"energy", name:"Energi", icon:"⚡", hint:"Sömn, vila och mental ork.", baseDecay:2.5,
         actions:[
-          {label:"Vila 15 min", delta:18, text:"+18 energi"},
-          {label:"Kort promenad", delta:10, text:"+10 energi"}
+          {label:"Vila 15 min", delta:{energy:18, calm:8}, text:"+energi och lugn"},
+          {label:"Kort promenad", delta:{energy:10, movement:15, calm:6}, text:"+rörelse och energi"}
         ]
       },
       {
-        id:"food",
-        name:"Mat",
-        icon:"🍽️",
-        hint:"Näring, hunger och jämnt blodsocker.",
-        decayPerHour:5.2,
+        id:"food", name:"Mat", icon:"🍽️", hint:"Näring, hunger och jämnt blodsocker.", baseDecay:5.0,
         actions:[
-          {label:"Åt måltid", delta:45, text:"+45 mat"},
-          {label:"Åt mellanmål", delta:22, text:"+22 mat"}
+          {label:"Åt måltid", delta:{food:45, energy:8}, text:"+mat och lite energi"},
+          {label:"Åt mellanmål", delta:{food:22, energy:5}, text:"+mat"}
         ]
       },
       {
-        id:"water",
-        name:"Vätska",
-        icon:"💧",
-        hint:"Vatten, törst och värme.",
-        decayPerHour:6.0,
+        id:"water", name:"Vätska", icon:"💧", hint:"Vatten, törst och temperatur.", baseDecay:5.8,
         actions:[
-          {label:"Drack vatten", delta:28, text:"+28 vätska"},
-          {label:"Fyllde flaska", delta:12, text:"+12 vätska"}
+          {label:"Drack vatten", delta:{water:28}, text:"+vätska"},
+          {label:"Fyllde flaska", delta:{water:12}, text:"+vätska"}
         ]
       },
       {
-        id:"hygiene",
-        name:"Hygien",
-        icon:"🫧",
-        hint:"Dusch, tänder och fräschhetskänsla.",
-        decayPerHour:1.7,
+        id:"hygiene", name:"Hygien", icon:"🫧", hint:"Dusch, tänder och fräschhetskänsla.", baseDecay:1.6,
         actions:[
-          {label:"Duschade", delta:48, text:"+48 hygien"},
-          {label:"Borstat tänder", delta:22, text:"+22 hygien"}
+          {label:"Duschade", delta:{hygiene:48, joy:6}, text:"+hygien"},
+          {label:"Borstat tänder", delta:{hygiene:22}, text:"+hygien"}
         ]
       },
       {
-        id:"social",
-        name:"Socialt",
-        icon:"💬",
-        hint:"Kontakt, närhet och gemenskap.",
-        decayPerHour:2.2,
+        id:"social", name:"Socialt", icon:"💬", hint:"Kontakt, närhet och gemenskap.", baseDecay:2.2,
         actions:[
-          {label:"Skickade meddelande", delta:18, text:"+18 socialt"},
-          {label:"Träffade någon", delta:38, text:"+38 socialt"}
+          {label:"Skickade meddelande", delta:{social:18, joy:5}, text:"+socialt"},
+          {label:"Träffade någon", delta:{social:38, joy:10}, text:"+socialt och glädje"}
         ]
       },
       {
-        id:"movement",
-        name:"Rörelse",
-        icon:"🚶",
-        hint:"Steg, stretch och blodcirkulation.",
-        decayPerHour:2.4,
+        id:"movement", name:"Rörelse", icon:"🚶", hint:"Steg, stretch och blodcirkulation.", baseDecay:2.4,
         actions:[
-          {label:"Gick 10 min", delta:25, text:"+25 rörelse"},
-          {label:"Stretchade", delta:14, text:"+14 rörelse"}
+          {label:"Gick 10 min", delta:{movement:25, energy:8, calm:8}, text:"+rörelse"},
+          {label:"Stretchade", delta:{movement:14, calm:6}, text:"+rörelse och lugn"}
         ]
       },
       {
-        id:"focus",
-        name:"Fokus",
-        icon:"🎯",
-        hint:"Koncentration och lagom få avbrott.",
-        decayPerHour:3.2,
+        id:"focus", name:"Fokus", icon:"🎯", hint:"Koncentration och lagom få avbrott.", baseDecay:3.1,
         actions:[
-          {label:"25 min fokus", delta:28, text:"+28 fokus"},
-          {label:"Rensade distraktion", delta:14, text:"+14 fokus"}
+          {label:"25 min fokus", delta:{focus:28, joy:4}, text:"+fokus"},
+          {label:"Rensade distraktion", delta:{focus:14, calm:8}, text:"+fokus och lugn"}
         ]
       },
       {
-        id:"stress",
-        name:"Stress",
-        icon:"🧘",
-        hint:"Här betyder hög stapel lugn. Låg stapel = stress.",
-        decayPerHour:2.9,
+        id:"calm", name:"Lugn", icon:"🧘", hint:"Hög stapel betyder låg stress och mer trygghet.", baseDecay:2.8,
         actions:[
-          {label:"Andades 2 min", delta:18, text:"+18 lugn"},
-          {label:"Skrev ned oro", delta:16, text:"+16 lugn"}
+          {label:"Andades 2 min", delta:{calm:18}, text:"+lugn"},
+          {label:"Skrev ned oro", delta:{calm:16, focus:6}, text:"+lugn"}
         ]
       },
       {
-        id:"joy",
-        name:"Glädje",
-        icon:"✨",
-        hint:"Lek, musik, hobby och små belöningar.",
-        decayPerHour:2.0,
+        id:"joy", name:"Glädje", icon:"✨", hint:"Lek, musik, hobby och små belöningar.", baseDecay:2.0,
         actions:[
-          {label:"Gjorde något kul", delta:28, text:"+28 glädje"},
-          {label:"Lyssnade på musik", delta:16, text:"+16 glädje"}
+          {label:"Gjorde något kul", delta:{joy:28, calm:6}, text:"+glädje"},
+          {label:"Lyssnade på musik", delta:{joy:16, energy:4}, text:"+glädje"}
         ]
       },
       {
-        id:"sleep",
-        name:"Sömn",
-        icon:"🌙",
-        hint:"Sömnskuld och återhämtning.",
-        decayPerHour:2.5,
+        id:"sleep", name:"Sömn", icon:"🌙", hint:"Sömnskuld och återhämtning.", baseDecay:2.6,
         actions:[
-          {label:"Sov bra", delta:55, text:"+55 sömn"},
-          {label:"Powernap", delta:20, text:"+20 sömn"}
+          {label:"Sov bra", delta:{sleep:55, energy:35, calm:18}, text:"+sömn och energi"},
+          {label:"Powernap", delta:{sleep:20, energy:18}, text:"+sömn och energi"}
         ]
       }
     ];
 
+    const STORAGE_KEY = "humanhub.v2";
+
     const DEFAULT_STATE = {
+      version: 2,
       createdAt: Date.now(),
       lastUpdated: Date.now(),
       needs: Object.fromEntries(NEEDS.map(n => [n.id, 68])),
-      checkins: []
+      checkins: [],
+      actions: [],
+      settings:{
+        theme:"light",
+        socialMode:"balanced",
+        sleepMode:"night",
+        decayMode:"normal",
+        movementReminder:"on"
+      }
     };
 
-    const STORAGE_KEY = "humanNeedsHUD.v1";
     let state = loadState();
+
+    function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 
     function loadState(){
       try{
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if(!saved || !saved.needs) return structuredClone(DEFAULT_STATE);
-        const merged = structuredClone(DEFAULT_STATE);
-        merged.createdAt = saved.createdAt || Date.now();
-        merged.lastUpdated = saved.lastUpdated || Date.now();
-        merged.checkins = Array.isArray(saved.checkins) ? saved.checkins : [];
-        for(const need of NEEDS){
-          merged.needs[need.id] = Number.isFinite(saved.needs[need.id]) ? saved.needs[need.id] : 68;
+        const savedV2 = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if(savedV2 && savedV2.needs) return migrateState(savedV2);
+
+        const old = JSON.parse(localStorage.getItem("humanNeedsHUD.v1"));
+        if(old && old.needs){
+          const migrated = clone(DEFAULT_STATE);
+          migrated.createdAt = old.createdAt || Date.now();
+          migrated.lastUpdated = old.lastUpdated || Date.now();
+          migrated.checkins = Array.isArray(old.checkins) ? old.checkins : [];
+          for(const need of NEEDS){
+            const oldId = need.id === "calm" ? "stress" : need.id;
+            migrated.needs[need.id] = Number.isFinite(old.needs[oldId]) ? old.needs[oldId] : 68;
+          }
+          return migrated;
         }
-        return merged;
+        return clone(DEFAULT_STATE);
       }catch{
-        return structuredClone(DEFAULT_STATE);
+        return clone(DEFAULT_STATE);
       }
+    }
+
+    function migrateState(input){
+      const merged = clone(DEFAULT_STATE);
+      merged.version = 2;
+      merged.createdAt = input.createdAt || Date.now();
+      merged.lastUpdated = input.lastUpdated || Date.now();
+      merged.checkins = Array.isArray(input.checkins) ? input.checkins : [];
+      merged.actions = Array.isArray(input.actions) ? input.actions : [];
+      merged.settings = {...merged.settings, ...(input.settings || {})};
+      for(const need of NEEDS){
+        const oldId = need.id === "calm" ? "stress" : need.id;
+        merged.needs[need.id] = Number.isFinite(input.needs[need.id]) ? input.needs[need.id] :
+          Number.isFinite(input.needs[oldId]) ? input.needs[oldId] : 68;
+      }
+      return merged;
     }
 
     function saveState(){
@@ -769,13 +1012,64 @@
       return Math.max(0, Math.min(100, Math.round(value)));
     }
 
-    function applyPassiveDecay(){
-      const now = Date.now();
-      const hours = Math.max(0, (now - state.lastUpdated) / 36e5);
-      if(hours <= 0.02) return;
-      for(const need of NEEDS){
-        state.needs[need.id] = clamp(state.needs[need.id] - need.decayPerHour * hours);
+    function decayMultiplier(){
+      return {gentle:.62, normal:1, realistic:1.35}[state.settings.decayMode] || 1;
+    }
+
+    function socialMultiplier(){
+      return {introvert:.62, balanced:1, extrovert:1.35}[state.settings.socialMode] || 1;
+    }
+
+    function sleepWindow(){
+      const mode = state.settings.sleepMode;
+      if(mode === "early") return {start:21, end:5};
+      if(mode === "late") return {start:1, end:9};
+      if(mode === "off") return null;
+      return {start:23, end:7};
+    }
+
+    function isHourInWindow(hour, start, end){
+      if(start < end) return hour >= start && hour < end;
+      return hour >= start || hour < end;
+    }
+
+    function estimateSleepHours(fromMs, toMs){
+      const win = sleepWindow();
+      if(!win) return 0;
+      let hours = 0;
+      const step = 30 * 60 * 1000;
+      for(let t = fromMs; t < toMs; t += step){
+        const d = new Date(t);
+        if(isHourInWindow(d.getHours(), win.start, win.end)) hours += .5;
       }
+      return Math.min(hours, 10);
+    }
+
+    function applyPassiveChange(){
+      const now = Date.now();
+      const elapsedHours = Math.max(0, (now - state.lastUpdated) / 36e5);
+      if(elapsedHours <= 0.015) return;
+
+      const multiplier = decayMultiplier();
+      const sleptHours = estimateSleepHours(state.lastUpdated, now);
+      const awakeHours = Math.max(0, elapsedHours - sleptHours);
+
+      for(const need of NEEDS){
+        let decay = need.baseDecay * multiplier * awakeHours;
+        if(need.id === "social") decay *= socialMultiplier();
+
+        state.needs[need.id] = clamp(state.needs[need.id] - decay);
+      }
+
+      if(sleptHours > 0){
+        state.needs.sleep = clamp(state.needs.sleep + sleptHours * 8.5);
+        state.needs.energy = clamp(state.needs.energy + sleptHours * 7.5);
+        state.needs.calm = clamp(state.needs.calm + sleptHours * 3.2);
+        state.needs.focus = clamp(state.needs.focus + sleptHours * 2.2);
+        state.needs.food = clamp(state.needs.food - sleptHours * 2.0);
+        state.needs.water = clamp(state.needs.water - sleptHours * 2.3);
+      }
+
       state.lastUpdated = now;
       saveState();
     }
@@ -789,6 +1083,28 @@
       if(value < 30) return "red";
       if(value < 55) return "yellow";
       return "green";
+    }
+
+    function ringColor(score){
+      if(score < 30) return "var(--red)";
+      if(score < 55) return "var(--yellow)";
+      return "var(--green)";
+    }
+
+    function formatTime(ms){
+      return new Intl.DateTimeFormat("sv-SE", {dateStyle:"short", timeStyle:"short"}).format(new Date(ms));
+    }
+
+    function getLowestNeeds(count = 3){
+      return [...NEEDS].sort((a,b) => state.needs[a.id] - state.needs[b.id]).slice(0,count);
+    }
+
+    function getBestActionForNeed(need){
+      const value = state.needs[need.id];
+      if(need.id === "food" && value < 40) return need.actions[0];
+      if(need.id === "water" && value < 45) return need.actions[0];
+      if(need.id === "sleep" && value < 30) return need.actions[1];
+      return need.actions[0];
     }
 
     function renderNeeds(){
@@ -812,7 +1128,10 @@
           </div>
           <div class="need-foot">
             <span class="hint">${need.hint}</span>
-            <button class="small-btn" data-need="${need.id}">+</button>
+            <button class="small-btn" data-need="${need.id}" title="Gör bästa åtgärd">+</button>
+          </div>
+          <div class="micro-row">
+            <input type="range" min="0" max="100" value="${value}" data-slider="${need.id}" aria-label="Justera ${need.name}" />
           </div>
         `;
         grid.appendChild(el);
@@ -821,7 +1140,16 @@
       document.querySelectorAll("[data-need]").forEach(button => {
         button.addEventListener("click", () => {
           const need = NEEDS.find(n => n.id === button.dataset.need);
-          doAction(need.id, need.actions[0]);
+          doAction(need.id, getBestActionForNeed(need));
+        });
+      });
+
+      document.querySelectorAll("[data-slider]").forEach(slider => {
+        slider.addEventListener("input", () => {
+          state.needs[slider.dataset.slider] = clamp(Number(slider.value));
+          state.lastUpdated = Date.now();
+          saveState();
+          renderAll(false);
         });
       });
     }
@@ -832,11 +1160,13 @@
       const scoreValue = document.querySelector("#scoreValue");
       const title = document.querySelector("#statusTitle");
       const text = document.querySelector("#statusText");
+      const meta = document.querySelector("#statusMeta");
 
       ring.style.setProperty("--score", score);
+      ring.style.setProperty("--ringColor", ringColor(score));
       scoreValue.textContent = score;
 
-      const lowest = [...NEEDS].sort((a,b) => state.needs[a.id] - state.needs[b.id])[0];
+      const lowest = getLowestNeeds(1)[0];
       const lowValue = clamp(state.needs[lowest.id]);
 
       if(score >= 75){
@@ -849,17 +1179,27 @@
         title.textContent = "Låg laddning";
         text.textContent = `${lowest.name} är nere på ${lowValue}%. Börja med en minimal åtgärd: vatten, mat, paus eller kontakt.`;
       }
+
+      const now = new Date();
+      const sleep = sleepWindow();
+      const sleepText = sleep ? `Sömn ${String(sleep.start).padStart(2,"0")}–${String(sleep.end).padStart(2,"0")}` : "Sömn-auto av";
+      meta.innerHTML = `
+        <span class="pill">⏱️ Uppdaterad ${now.toLocaleTimeString("sv-SE", {hour:"2-digit", minute:"2-digit"})}</span>
+        <span class="pill">🌙 ${sleepText}</span>
+        <span class="pill">⚙️ ${state.settings.decayMode}</span>
+      `;
     }
 
     function renderQuests(){
-      const lowNeeds = [...NEEDS]
-        .sort((a,b) => state.needs[a.id] - state.needs[b.id])
-        .slice(0,3);
+      let lowNeeds = getLowestNeeds(3);
+      if(state.settings.movementReminder === "on" && state.needs.movement < 45 && !lowNeeds.some(n => n.id === "movement")){
+        lowNeeds = [NEEDS.find(n => n.id === "movement"), ...lowNeeds.slice(0,2)];
+      }
 
       const quests = document.querySelector("#quests");
       quests.innerHTML = "";
       lowNeeds.forEach((need, index) => {
-        const action = need.actions[0];
+        const action = getBestActionForNeed(need);
         const el = document.createElement("div");
         el.className = "quest";
         el.innerHTML = `
@@ -882,18 +1222,15 @@
       if(get("water") < 30) moodlets.push(["💧", "Törstig"]);
       if(get("energy") < 35) moodlets.push(["😴", "Låg energi"]);
       if(get("social") < 35) moodlets.push(["💬", "Behöver människa"]);
-      if(get("stress") < 35) moodlets.push(["🌀", "Stresspåslag"]);
-      if(get("focus") > 70 && get("stress") > 55) moodlets.push(["🎯", "Bra flow"]);
+      if(get("calm") < 35) moodlets.push(["🌀", "Stresspåslag"]);
+      if(get("focus") > 70 && get("calm") > 55) moodlets.push(["🎯", "Bra flow"]);
       if(get("joy") < 35) moodlets.push(["✨", "Behöver kul"]);
       if(get("movement") < 35) moodlets.push(["🚶", "Kroppen vill röra sig"]);
       if(averageNeeds() > 76) moodlets.push(["🌿", "Bra balans"]);
 
       const box = document.querySelector("#moodlets");
       box.innerHTML = "";
-
-      if(moodlets.length === 0){
-        moodlets.push(["☁️", "Neutral status"]);
-      }
+      if(moodlets.length === 0) moodlets.push(["☁️", "Neutral status"]);
 
       moodlets.forEach(([icon, label]) => {
         const el = document.createElement("span");
@@ -917,9 +1254,39 @@
       });
     }
 
+    function renderManualSliders(){
+      const box = document.querySelector("#manualSliders");
+      box.innerHTML = "";
+      NEEDS.forEach(need => {
+        const value = clamp(state.needs[need.id]);
+        const row = document.createElement("div");
+        row.className = "setting-row";
+        row.innerHTML = `
+          <div>
+            <strong>${need.icon} ${need.name}: <span>${value}</span>%</strong>
+            <p>${need.hint}</p>
+          </div>
+          <input type="range" min="0" max="100" value="${value}" data-manual="${need.id}" aria-label="${need.name}" />
+        `;
+        box.appendChild(row);
+      });
+      document.querySelectorAll("[data-manual]").forEach(slider => {
+        slider.addEventListener("input", () => {
+          state.needs[slider.dataset.manual] = clamp(Number(slider.value));
+          state.lastUpdated = Date.now();
+          saveState();
+          renderAll(false);
+        });
+      });
+    }
+
     function doAction(needId, action){
-      state.needs[needId] = clamp(state.needs[needId] + action.delta);
+      for(const [target, amount] of Object.entries(action.delta)){
+        state.needs[target] = clamp((state.needs[target] || 0) + amount);
+      }
       state.lastUpdated = Date.now();
+      state.actions.unshift({at:Date.now(), needId, label:action.label, delta:action.delta});
+      state.actions = state.actions.slice(0, 100);
       saveState();
       renderAll();
       showToast(`${action.label} registrerat`);
@@ -929,24 +1296,155 @@
       const body = Number(document.querySelector("#bodyRange").value);
       const mind = Number(document.querySelector("#mindRange").value);
       const note = document.querySelector("#note").value.trim();
+      const total = averageNeeds();
 
-      state.checkins.unshift({
-        at: Date.now(),
-        body,
-        mind,
-        note
-      });
-      state.checkins = state.checkins.slice(0, 50);
+      state.checkins.unshift({at: Date.now(), body, mind, total, note});
+      state.checkins = state.checkins.slice(0, 80);
 
-      state.needs.energy = clamp((state.needs.energy * .72) + (body * .28));
-      state.needs.stress = clamp((state.needs.stress * .72) + (mind * .28));
-      state.needs.joy = clamp(state.needs.joy + (mind > 65 ? 8 : 0));
+      state.needs.energy = clamp((state.needs.energy * .70) + (body * .30));
+      state.needs.calm = clamp((state.needs.calm * .70) + (mind * .30));
+      state.needs.focus = clamp((state.needs.focus * .82) + (mind * .18));
+      if(mind > 65) state.needs.joy = clamp(state.needs.joy + 7);
+      if(body < 35) state.needs.sleep = clamp(state.needs.sleep - 5);
+
       state.lastUpdated = Date.now();
-
       document.querySelector("#note").value = "";
       saveState();
       renderAll();
       showToast("Check-in sparad");
+    }
+
+    function renderInsights(){
+      renderTrend();
+      renderHistory();
+      renderDailySummary();
+      renderBalanceAnalysis();
+    }
+
+    function renderTrend(){
+      const canvas = document.querySelector("#trendCanvas");
+      if(!canvas) return;
+      const ctx = canvas.getContext("2d");
+      const w = canvas.width;
+      const h = canvas.height;
+      ctx.clearRect(0,0,w,h);
+
+      const data = [...state.checkins].reverse().slice(-20);
+      ctx.font = "18px system-ui";
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim();
+      if(data.length < 2){
+        ctx.fillText("Spara minst två check-ins för att se trend.", 24, 48);
+        return;
+      }
+
+      const styles = getComputedStyle(document.documentElement);
+      const line = styles.getPropertyValue("--line").trim();
+      const text = styles.getPropertyValue("--text").trim();
+      const green = styles.getPropertyValue("--green").trim();
+      const blue = styles.getPropertyValue("--blue").trim();
+      const purple = styles.getPropertyValue("--purple").trim();
+
+      ctx.strokeStyle = line;
+      ctx.lineWidth = 1;
+      for(let i=0; i<=4; i++){
+        const y = 25 + i * ((h-55)/4);
+        ctx.beginPath();
+        ctx.moveTo(42, y);
+        ctx.lineTo(w-18, y);
+        ctx.stroke();
+      }
+
+      function drawLine(key, color){
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 4;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        data.forEach((d, i) => {
+          const x = 42 + i * ((w-70)/(data.length-1));
+          const y = 25 + (100 - d[key]) * ((h-55)/100);
+          if(i === 0) ctx.moveTo(x,y);
+          else ctx.lineTo(x,y);
+        });
+        ctx.stroke();
+      }
+
+      drawLine("body", green);
+      drawLine("mind", blue);
+      drawLine("total", purple);
+
+      ctx.fillStyle = text;
+      ctx.font = "14px system-ui";
+      ctx.fillText("Kropp", 44, h-12);
+      ctx.fillText("Huvud", 112, h-12);
+      ctx.fillText("Total", 185, h-12);
+    }
+
+    function renderHistory(){
+      const list = document.querySelector("#historyList");
+      if(state.checkins.length === 0){
+        list.innerHTML = `<div class="empty">Ingen historik än. Spara en check-in på HUD-fliken.</div>`;
+        return;
+      }
+      list.innerHTML = "";
+      state.checkins.slice(0, 30).forEach(item => {
+        const el = document.createElement("div");
+        el.className = "history-item";
+        el.innerHTML = `
+          <div class="history-top">
+            <span>${formatTime(item.at)}</span>
+            <span class="history-score">Kropp ${item.body}% · Huvud ${item.mind}% · Total ${item.total ?? "–"}%</span>
+          </div>
+          <p class="history-note">${escapeHtml(item.note || "Ingen anteckning.")}</p>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    function renderDailySummary(){
+      const box = document.querySelector("#dailySummary");
+      const today = new Date().toDateString();
+      const todayCheckins = state.checkins.filter(c => new Date(c.at).toDateString() === today);
+      const todayActions = state.actions.filter(a => new Date(a.at).toDateString() === today);
+      const lowest = getLowestNeeds(1)[0];
+
+      box.innerHTML = `
+        <div class="review-list">
+          <div class="review-item"><strong>${todayCheckins.length}</strong><p>check-ins sparade idag.</p></div>
+          <div class="review-item"><strong>${todayActions.length}</strong><p>snabbåtgärder registrerade idag.</p></div>
+          <div class="review-item"><strong>${lowest.icon} ${lowest.name}</strong><p>är lägst just nu på ${clamp(state.needs[lowest.id])}%.</p></div>
+        </div>
+      `;
+    }
+
+    function renderBalanceAnalysis(){
+      const box = document.querySelector("#balanceAnalysis");
+      const sorted = getLowestNeeds(4);
+      const high = [...NEEDS].sort((a,b) => state.needs[b.id] - state.needs[a.id]).slice(0,2);
+      const advice = [];
+
+      if(state.needs.water < 45) advice.push("Vätska påverkar ofta huvud, energi och fokus. Ett glas vatten är en låg tröskel.");
+      if(state.needs.food < 45) advice.push("Mat är en basgrej. Gör det enkelt hellre än perfekt.");
+      if(state.needs.calm < 45 && state.needs.focus < 55) advice.push("När lugn är låg blir fokus ofta dyrt. Börja med nervsystemet, inte disciplin.");
+      if(state.needs.sleep < 45) advice.push("Sömn ser låg ut. Sikta på återhämtning snarare än maximal produktivitet.");
+      if(advice.length === 0) advice.push("Inget akut sticker ut. Bevara balansen med små repetitioner.");
+
+      box.innerHTML = `
+        <div class="review-list">
+          <div class="review-item"><strong>Lägst</strong><p>${sorted.map(n => `${n.icon} ${n.name} ${clamp(state.needs[n.id])}%`).join(" · ")}</p></div>
+          <div class="review-item"><strong>Starkast</strong><p>${high.map(n => `${n.icon} ${n.name} ${clamp(state.needs[n.id])}%`).join(" · ")}</p></div>
+          <div class="review-item"><strong>Tolkning</strong><p>${advice.join(" ")}</p></div>
+        </div>
+      `;
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
     function exportData(){
@@ -954,7 +1452,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "human-needs-hud-data.json";
+      a.download = "humanhub-data.json";
       a.click();
       URL.revokeObjectURL(url);
       showToast("Data exporterad");
@@ -966,9 +1464,11 @@
         try{
           const imported = JSON.parse(reader.result);
           if(!imported.needs) throw new Error("Fel format");
-          state = imported;
+          state = migrateState(imported);
           state.lastUpdated = Date.now();
           saveState();
+          applyTheme();
+          syncSettingsUI();
           renderAll();
           showToast("Data importerad");
         }catch{
@@ -986,22 +1486,74 @@
       showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
     }
 
-    function renderAll(){
-      applyPassiveDecay();
+    function applyTheme(){
+      document.body.dataset.theme = state.settings.theme === "dark" ? "dark" : "light";
+      document.querySelector("#themeBtn").textContent = state.settings.theme === "dark" ? "Ljust läge" : "Mörkt läge";
+    }
+
+    function syncSettingsUI(){
+      document.querySelector("#socialMode").value = state.settings.socialMode;
+      document.querySelector("#sleepMode").value = state.settings.sleepMode;
+      document.querySelector("#decayMode").value = state.settings.decayMode;
+      document.querySelector("#movementReminder").value = state.settings.movementReminder;
+    }
+
+    function updateSetting(id, value){
+      state.settings[id] = value;
+      state.lastUpdated = Date.now();
+      saveState();
+      renderAll();
+    }
+
+    function renderAll(allowDecay = true){
+      if(allowDecay) applyPassiveChange();
+      applyTheme();
       renderNeeds();
       renderStatus();
       renderQuests();
       renderMoodlets();
       renderActions();
+      renderManualSliders();
+      renderInsights();
     }
 
+    function switchTab(tab){
+      document.querySelectorAll(".tab").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tab));
+      document.querySelectorAll(".screen").forEach(screen => screen.classList.remove("active"));
+      document.querySelector(`#screen-${tab}`).classList.add("active");
+      if(tab === "insights") renderInsights();
+    }
+
+    document.querySelectorAll(".tab").forEach(btn => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
     document.querySelector("#saveCheckin").addEventListener("click", saveCheckin);
+
+    ["bodyRange","mindRange"].forEach(id => {
+      const el = document.querySelector(`#${id}`);
+      const label = document.querySelector(id === "bodyRange" ? "#bodyLabel" : "#mindLabel");
+      el.addEventListener("input", () => label.textContent = el.value);
+    });
+
+    document.querySelector("#themeBtn").addEventListener("click", () => {
+      state.settings.theme = state.settings.theme === "dark" ? "light" : "dark";
+      saveState();
+      renderAll(false);
+    });
+
     document.querySelector("#exportBtn").addEventListener("click", exportData);
+    document.querySelector("#exportBtn2").addEventListener("click", exportData);
     document.querySelector("#importBtn").addEventListener("click", () => document.querySelector("#fileInput").click());
+    document.querySelector("#importBtn2").addEventListener("click", () => document.querySelector("#fileInput").click());
     document.querySelector("#fileInput").addEventListener("change", event => {
       const file = event.target.files[0];
       if(file) importData(file);
       event.target.value = "";
+    });
+
+    ["socialMode","sleepMode","decayMode","movementReminder"].forEach(id => {
+      document.querySelector(`#${id}`).addEventListener("change", event => updateSetting(id, event.target.value));
     });
 
     const dialog = document.querySelector("#confirmDialog");
@@ -1009,14 +1561,16 @@
     document.querySelector("#cancelReset").addEventListener("click", () => dialog.close());
     document.querySelector("#confirmReset").addEventListener("click", () => {
       localStorage.removeItem(STORAGE_KEY);
-      state = structuredClone(DEFAULT_STATE);
+      state = clone(DEFAULT_STATE);
       dialog.close();
+      syncSettingsUI();
       renderAll();
-      showToast("Appen är nollställd");
+      showToast("HumanHub är nollställd");
     });
 
+    syncSettingsUI();
     renderAll();
-    setInterval(renderAll, 60_000);
+    setInterval(() => renderAll(), 60_000);
   </script>
 </body>
 </html>
