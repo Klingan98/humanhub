@@ -1,0 +1,1022 @@
+<!doctype html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Human Needs HUD</title>
+  <meta name="description" content="En enkel behovs-HUD inspirerad av spel, anpassad för riktiga människor. All data sparas lokalt i webbläsaren." />
+  <style>
+    :root{
+      --bg:#eef3fb;
+      --panel:#ffffff;
+      --panel-2:#f7f9fd;
+      --text:#162033;
+      --muted:#657089;
+      --line:#d9e1ee;
+      --green:#29c45a;
+      --yellow:#f5ba2f;
+      --red:#ef4b4b;
+      --blue:#2f7df6;
+      --purple:#8b5cf6;
+      --shadow:0 18px 45px rgba(39,55,90,.14);
+      --radius:22px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: ui-rounded, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(47,125,246,.18), transparent 32rem),
+        radial-gradient(circle at top right, rgba(41,196,90,.15), transparent 28rem),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg) 100%);
+    }
+
+    button, input, select, textarea{
+      font:inherit;
+    }
+
+    .app{
+      width:min(1180px, calc(100% - 28px));
+      margin:0 auto;
+      padding:24px 0 42px;
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:22px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+
+    .logo{
+      width:54px;
+      height:54px;
+      border-radius:18px;
+      background:
+        linear-gradient(145deg, #25d75a, #1f7dff);
+      display:grid;
+      place-items:center;
+      box-shadow:0 12px 28px rgba(47,125,246,.24);
+      color:white;
+      font-size:28px;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(1.6rem, 4vw, 2.7rem);
+      letter-spacing:-.04em;
+      line-height:1;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      margin:.35rem 0 0;
+      font-size:.98rem;
+    }
+
+    .header-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      border:0;
+      border-radius:999px;
+      padding:11px 15px;
+      background:var(--panel);
+      color:var(--text);
+      box-shadow:0 8px 20px rgba(39,55,90,.09);
+      cursor:pointer;
+      transition:.18s transform, .18s box-shadow, .18s background;
+      font-weight:700;
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 12px 28px rgba(39,55,90,.13);
+    }
+
+    .btn.primary{
+      color:white;
+      background:linear-gradient(135deg, var(--blue), #1fbf75);
+    }
+
+    .btn.danger{
+      color:white;
+      background:linear-gradient(135deg, #ef4b4b, #f59e0b);
+    }
+
+    .dashboard{
+      display:grid;
+      grid-template-columns: 1.7fr .9fr;
+      gap:18px;
+      align-items:start;
+    }
+
+    .panel{
+      background:rgba(255,255,255,.86);
+      border:1px solid rgba(217,225,238,.86);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .needs-panel{
+      padding:18px;
+    }
+
+    .status-card{
+      display:grid;
+      grid-template-columns: 96px 1fr;
+      gap:16px;
+      align-items:center;
+      padding:18px;
+      margin-bottom:16px;
+      background:linear-gradient(135deg, #ffffff, #f6f9ff);
+      border:1px solid var(--line);
+      border-radius:20px;
+    }
+
+    .score-ring{
+      width:96px;
+      height:96px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:
+        conic-gradient(var(--green) calc(var(--score) * 1%), #dfe7f3 0);
+      position:relative;
+    }
+
+    .score-ring::after{
+      content:"";
+      position:absolute;
+      width:72px;
+      height:72px;
+      border-radius:50%;
+      background:white;
+      box-shadow:inset 0 0 0 1px var(--line);
+    }
+
+    .score-value{
+      position:relative;
+      z-index:1;
+      font-size:1.35rem;
+      font-weight:900;
+    }
+
+    .status-title{
+      margin:0 0 4px;
+      font-size:1.35rem;
+      letter-spacing:-.02em;
+    }
+
+    .status-text{
+      margin:0;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .needs-grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      border:1px solid var(--line);
+      border-radius:20px;
+      overflow:hidden;
+      background:#eaf0f8;
+    }
+
+    .need{
+      background:linear-gradient(180deg, #fbfdff, #f0f4fb);
+      padding:15px;
+      border-bottom:1px solid var(--line);
+      border-right:1px solid var(--line);
+      min-height:132px;
+      position:relative;
+    }
+
+    .need:nth-child(2n){border-right:0}
+    .need:nth-last-child(-n+2){border-bottom:0}
+
+    .need-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      margin-bottom:10px;
+    }
+
+    .need-name{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-size:1.18rem;
+      font-weight:900;
+      color:#2459a6;
+      letter-spacing:-.02em;
+    }
+
+    .need-icon{
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      color:white;
+      background:linear-gradient(135deg, #39e95b, #149d43);
+      box-shadow:inset 0 -4px 0 rgba(0,0,0,.14), 0 6px 12px rgba(41,196,90,.25);
+      font-size:20px;
+    }
+
+    .need-value{
+      color:#27548e;
+      font-weight:900;
+    }
+
+    .bar{
+      width:100%;
+      height:28px;
+      border-radius:999px;
+      background:#dce5f1;
+      border:1px solid #cbd6e6;
+      box-shadow: inset 0 4px 8px rgba(39,55,90,.12);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .bar-fill{
+      height:100%;
+      width:50%;
+      min-width:4px;
+      border-radius:999px;
+      background:linear-gradient(180deg, #48f263, #19a446);
+      box-shadow:inset 0 -8px 13px rgba(0,0,0,.18);
+      transition:width .45s ease, background .25s ease;
+    }
+
+    .bar-fill.yellow{
+      background:linear-gradient(180deg, #ffd95b, #e69d1b);
+    }
+
+    .bar-fill.red{
+      background:linear-gradient(180deg, #ff7777, #d93838);
+    }
+
+    .need-foot{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .hint{
+      color:var(--muted);
+      font-size:.84rem;
+      line-height:1.3;
+    }
+
+    .small-btn{
+      border:1px solid var(--line);
+      background:white;
+      color:#2b4e82;
+      border-radius:999px;
+      padding:8px 10px;
+      font-weight:900;
+      cursor:pointer;
+      white-space:nowrap;
+    }
+
+    .side{
+      display:grid;
+      gap:18px;
+    }
+
+    .card{
+      padding:18px;
+    }
+
+    .card h2{
+      margin:0 0 12px;
+      letter-spacing:-.03em;
+      font-size:1.2rem;
+    }
+
+    .quest{
+      display:flex;
+      gap:10px;
+      align-items:flex-start;
+      padding:12px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:var(--panel-2);
+      margin-bottom:10px;
+    }
+
+    .quest:last-child{margin-bottom:0}
+
+    .quest-dot{
+      width:26px;
+      height:26px;
+      flex:0 0 26px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:#e7efff;
+      color:var(--blue);
+      font-weight:900;
+    }
+
+    .quest-title{
+      margin:0;
+      font-weight:900;
+    }
+
+    .quest-text{
+      margin:2px 0 0;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.35;
+    }
+
+    .moodlets{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .moodlet{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:white;
+      font-weight:800;
+      color:#2b4e82;
+      font-size:.9rem;
+    }
+
+    .checkin-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    label{
+      font-size:.85rem;
+      color:var(--muted);
+      font-weight:800;
+      display:block;
+      margin-bottom:6px;
+    }
+
+    input[type="range"]{
+      width:100%;
+      accent-color:var(--blue);
+    }
+
+    textarea{
+      width:100%;
+      min-height:86px;
+      resize:vertical;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      background:#fbfdff;
+      color:var(--text);
+      outline:none;
+    }
+
+    .full{grid-column:1 / -1}
+
+    .actions-list{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .action-tile{
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      background:var(--panel-2);
+      cursor:pointer;
+      text-align:left;
+      transition:.18s transform, .18s background;
+    }
+
+    .action-tile:hover{
+      transform:translateY(-1px);
+      background:white;
+    }
+
+    .action-tile strong{
+      display:block;
+      margin-bottom:3px;
+    }
+
+    .action-tile span{
+      color:var(--muted);
+      font-size:.84rem;
+    }
+
+    .privacy{
+      color:var(--muted);
+      font-size:.86rem;
+      line-height:1.45;
+      margin:0;
+    }
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:22px;
+      transform:translateX(-50%) translateY(20px);
+      background:#172033;
+      color:white;
+      padding:12px 16px;
+      border-radius:999px;
+      box-shadow:0 12px 32px rgba(0,0,0,.25);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      font-weight:800;
+      z-index:20;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    dialog{
+      width:min(560px, calc(100% - 30px));
+      border:0;
+      border-radius:24px;
+      padding:0;
+      box-shadow:0 28px 70px rgba(0,0,0,.26);
+      background:white;
+      color:var(--text);
+    }
+
+    dialog::backdrop{
+      background:rgba(15,23,42,.45);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal{
+      padding:22px;
+    }
+
+    .modal h2{
+      margin:0 0 8px;
+    }
+
+    .modal p{
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .modal-actions{
+      display:flex;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .footer-note{
+      margin:16px 4px 0;
+      color:var(--muted);
+      font-size:.86rem;
+      text-align:center;
+    }
+
+    @media (max-width: 900px){
+      .dashboard{grid-template-columns:1fr}
+      header{align-items:flex-start; flex-direction:column}
+      .header-actions{justify-content:flex-start}
+    }
+
+    @media (max-width: 620px){
+      .needs-grid{grid-template-columns:1fr}
+      .need{border-right:0 !important}
+      .need:nth-last-child(2){border-bottom:1px solid var(--line)}
+      .status-card{grid-template-columns:1fr; text-align:center}
+      .score-ring{margin:auto}
+      .actions-list, .checkin-grid{grid-template-columns:1fr}
+      .btn{width:100%}
+      .header-actions{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true">◇</div>
+        <div>
+          <h1>Human Needs HUD</h1>
+          <p class="subtitle">Behovstaplar för riktiga människor. Snällare än en to-do-lista.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" id="exportBtn">Exportera data</button>
+        <button class="btn" id="importBtn">Importera</button>
+        <button class="btn danger" id="resetBtn">Nollställ</button>
+      </div>
+    </header>
+
+    <main class="dashboard">
+      <section class="panel needs-panel" aria-label="Behovsstaplar">
+        <div class="status-card">
+          <div class="score-ring" id="scoreRing" style="--score:50">
+            <span class="score-value" id="scoreValue">50</span>
+          </div>
+          <div>
+            <h2 class="status-title" id="statusTitle">Laddar status...</h2>
+            <p class="status-text" id="statusText">Appen räknar ihop dina behov och föreslår ett litet nästa steg.</p>
+          </div>
+        </div>
+
+        <div class="needs-grid" id="needsGrid"></div>
+      </section>
+
+      <aside class="side">
+        <section class="panel card">
+          <h2>Dagens små quests</h2>
+          <div id="quests"></div>
+        </section>
+
+        <section class="panel card">
+          <h2>Moodlets</h2>
+          <div class="moodlets" id="moodlets"></div>
+        </section>
+
+        <section class="panel card">
+          <h2>Snabb check-in</h2>
+          <div class="checkin-grid">
+            <div>
+              <label for="bodyRange">Kroppen just nu</label>
+              <input id="bodyRange" type="range" min="0" max="100" value="55" />
+            </div>
+            <div>
+              <label for="mindRange">Huvudet just nu</label>
+              <input id="mindRange" type="range" min="0" max="100" value="55" />
+            </div>
+            <div class="full">
+              <label for="note">Anteckning</label>
+              <textarea id="note" placeholder="Ex: sov dåligt, men tog en promenad."></textarea>
+            </div>
+            <button class="btn primary full" id="saveCheckin">Spara check-in</button>
+          </div>
+        </section>
+
+        <section class="panel card">
+          <h2>Snabbåtgärder</h2>
+          <div class="actions-list" id="actionsList"></div>
+        </section>
+
+        <section class="panel card">
+          <h2>Integritet</h2>
+          <p class="privacy">
+            Den här versionen sparar allt lokalt i din webbläsare med localStorage. Ingen server, inget konto, ingen molnlagring.
+          </p>
+        </section>
+      </aside>
+    </main>
+
+    <p class="footer-note">
+      Inte medicinsk rådgivning. Se det som en vardagskompass, inte en domare.
+    </p>
+  </div>
+
+  <dialog id="confirmDialog">
+    <div class="modal">
+      <h2>Nollställa appen?</h2>
+      <p>Det tar bort dina sparade behovsnivåer, check-ins och inställningar från den här webbläsaren.</p>
+      <div class="modal-actions">
+        <button class="btn" id="cancelReset">Avbryt</button>
+        <button class="btn danger" id="confirmReset">Nollställ</button>
+      </div>
+    </div>
+  </dialog>
+
+  <input type="file" id="fileInput" accept="application/json" hidden />
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const NEEDS = [
+      {
+        id:"energy",
+        name:"Energi",
+        icon:"⚡",
+        hint:"Sömn, vila och mental ork.",
+        decayPerHour:2.7,
+        actions:[
+          {label:"Vila 15 min", delta:18, text:"+18 energi"},
+          {label:"Kort promenad", delta:10, text:"+10 energi"}
+        ]
+      },
+      {
+        id:"food",
+        name:"Mat",
+        icon:"🍽️",
+        hint:"Näring, hunger och jämnt blodsocker.",
+        decayPerHour:5.2,
+        actions:[
+          {label:"Åt måltid", delta:45, text:"+45 mat"},
+          {label:"Åt mellanmål", delta:22, text:"+22 mat"}
+        ]
+      },
+      {
+        id:"water",
+        name:"Vätska",
+        icon:"💧",
+        hint:"Vatten, törst och värme.",
+        decayPerHour:6.0,
+        actions:[
+          {label:"Drack vatten", delta:28, text:"+28 vätska"},
+          {label:"Fyllde flaska", delta:12, text:"+12 vätska"}
+        ]
+      },
+      {
+        id:"hygiene",
+        name:"Hygien",
+        icon:"🫧",
+        hint:"Dusch, tänder och fräschhetskänsla.",
+        decayPerHour:1.7,
+        actions:[
+          {label:"Duschade", delta:48, text:"+48 hygien"},
+          {label:"Borstat tänder", delta:22, text:"+22 hygien"}
+        ]
+      },
+      {
+        id:"social",
+        name:"Socialt",
+        icon:"💬",
+        hint:"Kontakt, närhet och gemenskap.",
+        decayPerHour:2.2,
+        actions:[
+          {label:"Skickade meddelande", delta:18, text:"+18 socialt"},
+          {label:"Träffade någon", delta:38, text:"+38 socialt"}
+        ]
+      },
+      {
+        id:"movement",
+        name:"Rörelse",
+        icon:"🚶",
+        hint:"Steg, stretch och blodcirkulation.",
+        decayPerHour:2.4,
+        actions:[
+          {label:"Gick 10 min", delta:25, text:"+25 rörelse"},
+          {label:"Stretchade", delta:14, text:"+14 rörelse"}
+        ]
+      },
+      {
+        id:"focus",
+        name:"Fokus",
+        icon:"🎯",
+        hint:"Koncentration och lagom få avbrott.",
+        decayPerHour:3.2,
+        actions:[
+          {label:"25 min fokus", delta:28, text:"+28 fokus"},
+          {label:"Rensade distraktion", delta:14, text:"+14 fokus"}
+        ]
+      },
+      {
+        id:"stress",
+        name:"Stress",
+        icon:"🧘",
+        hint:"Här betyder hög stapel lugn. Låg stapel = stress.",
+        decayPerHour:2.9,
+        actions:[
+          {label:"Andades 2 min", delta:18, text:"+18 lugn"},
+          {label:"Skrev ned oro", delta:16, text:"+16 lugn"}
+        ]
+      },
+      {
+        id:"joy",
+        name:"Glädje",
+        icon:"✨",
+        hint:"Lek, musik, hobby och små belöningar.",
+        decayPerHour:2.0,
+        actions:[
+          {label:"Gjorde något kul", delta:28, text:"+28 glädje"},
+          {label:"Lyssnade på musik", delta:16, text:"+16 glädje"}
+        ]
+      },
+      {
+        id:"sleep",
+        name:"Sömn",
+        icon:"🌙",
+        hint:"Sömnskuld och återhämtning.",
+        decayPerHour:2.5,
+        actions:[
+          {label:"Sov bra", delta:55, text:"+55 sömn"},
+          {label:"Powernap", delta:20, text:"+20 sömn"}
+        ]
+      }
+    ];
+
+    const DEFAULT_STATE = {
+      createdAt: Date.now(),
+      lastUpdated: Date.now(),
+      needs: Object.fromEntries(NEEDS.map(n => [n.id, 68])),
+      checkins: []
+    };
+
+    const STORAGE_KEY = "humanNeedsHUD.v1";
+    let state = loadState();
+
+    function loadState(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if(!saved || !saved.needs) return structuredClone(DEFAULT_STATE);
+        const merged = structuredClone(DEFAULT_STATE);
+        merged.createdAt = saved.createdAt || Date.now();
+        merged.lastUpdated = saved.lastUpdated || Date.now();
+        merged.checkins = Array.isArray(saved.checkins) ? saved.checkins : [];
+        for(const need of NEEDS){
+          merged.needs[need.id] = Number.isFinite(saved.needs[need.id]) ? saved.needs[need.id] : 68;
+        }
+        return merged;
+      }catch{
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function clamp(value){
+      return Math.max(0, Math.min(100, Math.round(value)));
+    }
+
+    function applyPassiveDecay(){
+      const now = Date.now();
+      const hours = Math.max(0, (now - state.lastUpdated) / 36e5);
+      if(hours <= 0.02) return;
+      for(const need of NEEDS){
+        state.needs[need.id] = clamp(state.needs[need.id] - need.decayPerHour * hours);
+      }
+      state.lastUpdated = now;
+      saveState();
+    }
+
+    function averageNeeds(){
+      const values = NEEDS.map(n => state.needs[n.id]);
+      return Math.round(values.reduce((a,b) => a + b, 0) / values.length);
+    }
+
+    function levelClass(value){
+      if(value < 30) return "red";
+      if(value < 55) return "yellow";
+      return "green";
+    }
+
+    function renderNeeds(){
+      const grid = document.querySelector("#needsGrid");
+      grid.innerHTML = "";
+      for(const need of NEEDS){
+        const value = clamp(state.needs[need.id]);
+        const fillClass = levelClass(value);
+        const el = document.createElement("article");
+        el.className = "need";
+        el.innerHTML = `
+          <div class="need-head">
+            <div class="need-name">
+              <span class="need-icon">${need.icon}</span>
+              <span>${need.name}</span>
+            </div>
+            <span class="need-value">${value}%</span>
+          </div>
+          <div class="bar" aria-label="${need.name}: ${value} procent">
+            <div class="bar-fill ${fillClass}" style="width:${value}%"></div>
+          </div>
+          <div class="need-foot">
+            <span class="hint">${need.hint}</span>
+            <button class="small-btn" data-need="${need.id}">+</button>
+          </div>
+        `;
+        grid.appendChild(el);
+      }
+
+      document.querySelectorAll("[data-need]").forEach(button => {
+        button.addEventListener("click", () => {
+          const need = NEEDS.find(n => n.id === button.dataset.need);
+          doAction(need.id, need.actions[0]);
+        });
+      });
+    }
+
+    function renderStatus(){
+      const score = averageNeeds();
+      const ring = document.querySelector("#scoreRing");
+      const scoreValue = document.querySelector("#scoreValue");
+      const title = document.querySelector("#statusTitle");
+      const text = document.querySelector("#statusText");
+
+      ring.style.setProperty("--score", score);
+      scoreValue.textContent = score;
+
+      const lowest = [...NEEDS].sort((a,b) => state.needs[a.id] - state.needs[b.id])[0];
+      const lowValue = clamp(state.needs[lowest.id]);
+
+      if(score >= 75){
+        title.textContent = "Stabil människa-status";
+        text.textContent = `Du ligger ganska bra till. Fortsätt med små snälla val. Lägst just nu är ${lowest.name.toLowerCase()} på ${lowValue}%.`;
+      }else if(score >= 50){
+        title.textContent = "Okej, men något vill ha omsorg";
+        text.textContent = `Du fungerar, men ${lowest.name.toLowerCase()} verkar behöva lite uppmärksamhet. Välj ett litet steg, inte en livsomstart.`;
+      }else{
+        title.textContent = "Låg laddning";
+        text.textContent = `${lowest.name} är nere på ${lowValue}%. Börja med en minimal åtgärd: vatten, mat, paus eller kontakt.`;
+      }
+    }
+
+    function renderQuests(){
+      const lowNeeds = [...NEEDS]
+        .sort((a,b) => state.needs[a.id] - state.needs[b.id])
+        .slice(0,3);
+
+      const quests = document.querySelector("#quests");
+      quests.innerHTML = "";
+      lowNeeds.forEach((need, index) => {
+        const action = need.actions[0];
+        const el = document.createElement("div");
+        el.className = "quest";
+        el.innerHTML = `
+          <div class="quest-dot">${index + 1}</div>
+          <div>
+            <p class="quest-title">${action.label}</p>
+            <p class="quest-text">${need.name} är på ${clamp(state.needs[need.id])}%. ${action.text}.</p>
+          </div>
+        `;
+        el.addEventListener("click", () => doAction(need.id, action));
+        quests.appendChild(el);
+      });
+    }
+
+    function renderMoodlets(){
+      const moodlets = [];
+      const get = id => state.needs[id];
+
+      if(get("food") < 30) moodlets.push(["🍽️", "Hungrig"]);
+      if(get("water") < 30) moodlets.push(["💧", "Törstig"]);
+      if(get("energy") < 35) moodlets.push(["😴", "Låg energi"]);
+      if(get("social") < 35) moodlets.push(["💬", "Behöver människa"]);
+      if(get("stress") < 35) moodlets.push(["🌀", "Stresspåslag"]);
+      if(get("focus") > 70 && get("stress") > 55) moodlets.push(["🎯", "Bra flow"]);
+      if(get("joy") < 35) moodlets.push(["✨", "Behöver kul"]);
+      if(get("movement") < 35) moodlets.push(["🚶", "Kroppen vill röra sig"]);
+      if(averageNeeds() > 76) moodlets.push(["🌿", "Bra balans"]);
+
+      const box = document.querySelector("#moodlets");
+      box.innerHTML = "";
+
+      if(moodlets.length === 0){
+        moodlets.push(["☁️", "Neutral status"]);
+      }
+
+      moodlets.forEach(([icon, label]) => {
+        const el = document.createElement("span");
+        el.className = "moodlet";
+        el.textContent = `${icon} ${label}`;
+        box.appendChild(el);
+      });
+    }
+
+    function renderActions(){
+      const actions = document.querySelector("#actionsList");
+      actions.innerHTML = "";
+      NEEDS.forEach(need => {
+        need.actions.forEach(action => {
+          const btn = document.createElement("button");
+          btn.className = "action-tile";
+          btn.innerHTML = `<strong>${need.icon} ${action.label}</strong><span>${action.text}</span>`;
+          btn.addEventListener("click", () => doAction(need.id, action));
+          actions.appendChild(btn);
+        });
+      });
+    }
+
+    function doAction(needId, action){
+      state.needs[needId] = clamp(state.needs[needId] + action.delta);
+      state.lastUpdated = Date.now();
+      saveState();
+      renderAll();
+      showToast(`${action.label} registrerat`);
+    }
+
+    function saveCheckin(){
+      const body = Number(document.querySelector("#bodyRange").value);
+      const mind = Number(document.querySelector("#mindRange").value);
+      const note = document.querySelector("#note").value.trim();
+
+      state.checkins.unshift({
+        at: Date.now(),
+        body,
+        mind,
+        note
+      });
+      state.checkins = state.checkins.slice(0, 50);
+
+      state.needs.energy = clamp((state.needs.energy * .72) + (body * .28));
+      state.needs.stress = clamp((state.needs.stress * .72) + (mind * .28));
+      state.needs.joy = clamp(state.needs.joy + (mind > 65 ? 8 : 0));
+      state.lastUpdated = Date.now();
+
+      document.querySelector("#note").value = "";
+      saveState();
+      renderAll();
+      showToast("Check-in sparad");
+    }
+
+    function exportData(){
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "human-needs-hud-data.json";
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Data exporterad");
+    }
+
+    function importData(file){
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const imported = JSON.parse(reader.result);
+          if(!imported.needs) throw new Error("Fel format");
+          state = imported;
+          state.lastUpdated = Date.now();
+          saveState();
+          renderAll();
+          showToast("Data importerad");
+        }catch{
+          showToast("Kunde inte importera filen");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function showToast(message){
+      const toast = document.querySelector("#toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 2200);
+    }
+
+    function renderAll(){
+      applyPassiveDecay();
+      renderNeeds();
+      renderStatus();
+      renderQuests();
+      renderMoodlets();
+      renderActions();
+    }
+
+    document.querySelector("#saveCheckin").addEventListener("click", saveCheckin);
+    document.querySelector("#exportBtn").addEventListener("click", exportData);
+    document.querySelector("#importBtn").addEventListener("click", () => document.querySelector("#fileInput").click());
+    document.querySelector("#fileInput").addEventListener("change", event => {
+      const file = event.target.files[0];
+      if(file) importData(file);
+      event.target.value = "";
+    });
+
+    const dialog = document.querySelector("#confirmDialog");
+    document.querySelector("#resetBtn").addEventListener("click", () => dialog.showModal());
+    document.querySelector("#cancelReset").addEventListener("click", () => dialog.close());
+    document.querySelector("#confirmReset").addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEY);
+      state = structuredClone(DEFAULT_STATE);
+      dialog.close();
+      renderAll();
+      showToast("Appen är nollställd");
+    });
+
+    renderAll();
+    setInterval(renderAll, 60_000);
+  </script>
+</body>
+</html>
